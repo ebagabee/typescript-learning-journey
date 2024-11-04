@@ -17,5 +17,5 @@ This exercise focuses on implementing a basic user management system using TypeS
 - [x] E-mail validations ('@' and ".")
 - [x] Method to desative user
 - [x] Method to update user
-- [ ] Method to list only active users
+- [x] Method to list only active users
 - [ ] Adding creation date and last update the user

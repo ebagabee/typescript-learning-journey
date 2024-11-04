@@ -1,111 +1,163 @@
-interface User {
-  name: string;
-  age: number;
-  email: string;
-  active: boolean;
+enum UserStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
 }
 
-interface UpdateUser {
-  name?: string;
-  age?: number;
-  email?: string;
-  active?: boolean;
+type Email = string;
+
+interface BaseUser {
+  name: string;
+  age: number;
+  email: Email;
+  status: UserStatus;
+}
+
+interface User extends BaseUser {
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+// Custom Errors
+class UserError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UserError";
+  }
+}
+
+// Result type for operations
+interface Result<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }
 
 class UserManager {
-  private users: User[] = [
-    {
-      name: "Juan",
-      age: 19,
-      email: "Juan@email.com",
-      active: true,
-    },
-    {
-      name: "Aghata",
-      age: 14,
-      email: "agatha@gmail.com",
-      active: true,
-    },
-  ];
+  private users: User[] = [];
 
-  addUser(user: User): void {
-    if (!this.validateEmail(user.email)) {
-      console.log("E-mail don't is valid!");
-      return;
+  constructor(initialUsers?: User[]) {
+    this.users = initialUsers ?? [];
+  }
+
+  public addUser(user: Omit<User, "createdAt" | "updatedAt">): Result<User> {
+    try {
+      if (!this.validateEmail(user.email)) {
+        return { success: false, error: "Invalid email format" };
+      }
+
+      const newUser: User = {
+        ...user,
+        createdAt: new Date(),
+      };
+
+      this.users.push(newUser);
+
+      return {
+        success: true,
+        data: newUser,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Failed to add user",
+      };
+    }
+  }
+
+  public listUsers(): Result<User[]> {
+    return {
+      success: true,
+      data: this.users,
+    };
+  }
+
+  public searchByEmail(email: Email): Result<User> {
+    const user = this.users.find((u) => u.email === email);
+
+    if (!user) {
+      return { success: false, error: "User not found" };
     }
 
-    this.users.push(user);
-    console.log("User add successfully");
-  }
-
-  listUsers(): User[] {
-    return this.users;
-  }
-
-  searchByEmail(email: string): User | undefined {
-    return this.users.find((u) => u.email === email);
+    return { success: true, data: user };
   }
 
   // E-mail validations ('@' and ".")
   private validateEmail(email: string): boolean {
-    if (!(email.includes("@") && email.includes("."))) {
-      return false;
-    }
-
-    return true;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
-  desactiveUser(email: string): void {
-    const user = this.users.find((user) => user.email === email);
+  public updateUserStatus(email: Email, status: UserStatus): Result<User> {
+    const userResult = this.searchByEmail(email);
 
-    if (!user) {
-      console.log("User not founded");
-      return;
+    if (!userResult.success || !userResult.data) {
+      return { success: false, error: "User not found" };
     }
 
-    user.active = false;
-    console.log("User desactived successfully");
+    const user = userResult.data;
+    user.status = status;
+    user.updatedAt = new Date();
+
+    return { success: true, data: user };
   }
 
-  updateUser(email: string, userUpdated: UpdateUser): void {
-    const userFind = this.users.find((user) => user.email === email);
+  public updateUser(email: Email, updates: Partial<BaseUser>): Result<User> {
+    const userResult = this.searchByEmail(email);
 
-    if (!userFind) {
-      console.log("User not founded");
-      return;
+    if (!userResult.success || !userResult.data) {
+      return {
+        success: false,
+        error: "User not found",
+      };
     }
 
-    if (userUpdated.name) {
-      userFind.name = userUpdated.name;
+    const user = userResult.data;
+
+    if (updates.email && !this.validateEmail(updates.email)) {
+      return { success: false, error: "Invalid email format" };
     }
 
-    if (userUpdated.age) {
-      userFind.age = userUpdated.age;
-    }
+    Object.assign(user, {
+      ...updates,
+      updatedAt: new Date(),
+    });
 
-    if (userUpdated.email) {
-      userFind.email = userUpdated.email;
-    }
+    return {
+      success: true,
+      data: user,
+    };
+  }
 
-    if (userUpdated.active) {
-      userFind.active = userUpdated.active;
-    }
-
-    console.log("User updated successfully");
+  public getActiveUsers(): Result<User[]> {
+    return {
+      success: true,
+      data: this.users.filter((user) => user.status === UserStatus.ACTIVE),
+    };
   }
 }
 
 const manager = new UserManager();
 
-// Method to add user
-manager.addUser({
+const addResult = manager.addUser({
   name: "Gabriel",
   age: 23,
-  email: "gabrielhas.tech@gmail.com",
-  active: true,
+  email: "gabriel@example.com",
+  status: UserStatus.ACTIVE,
 });
 
-// Method to desative user
-manager.desactiveUser("agatha@gmail.com");
+if (addResult.success) {
+  console.log("User added:", addResult.data);
+} else {
+  console.error("Error adding user:", addResult.error);
+}
 
-console.log(manager.listUsers());
+const updateResult = manager.updateUserStatus(
+  "gabriel@example.com",
+  UserStatus.INACTIVE
+);
+
+if (updateResult.success) {
+  console.log("User Status updated:", updateResult.data);
+} else {
+  console.error("Error updating user:", updateResult.error);
+}
