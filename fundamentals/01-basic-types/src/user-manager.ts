@@ -6,7 +6,20 @@ interface User {
 }
 
 class UserManager {
-  private users: User[] = [];
+  private users: User[] = [
+    {
+      name: "Juan",
+      age: 19,
+      email: "Juan@email.com",
+      active: true,
+    },
+    {
+      name: "Aghata",
+      age: 14,
+      email: "agatha@gmail.com",
+      active: true,
+    },
+  ];
 
   addUser(user: User): void {
     if (!this.validateEmail(user.email)) {
@@ -34,6 +47,18 @@ class UserManager {
 
     return true;
   }
+
+  desactiveUser(email: string): void {
+    const user = this.users.find((user) => user.email === email);
+
+    if (!user) {
+      console.log("User not founded");
+      return;
+    }
+
+    user.active = false;
+    console.log("User desactived successfully");
+  }
 }
 
 const manager = new UserManager();
@@ -44,3 +69,8 @@ manager.addUser({
   email: "gabrielhas.tech@gmail.com",
   active: true,
 });
+
+// Method to desative user
+manager.desactiveUser("agatha@gmail.com");
+
+console.log(manager.listUsers());
