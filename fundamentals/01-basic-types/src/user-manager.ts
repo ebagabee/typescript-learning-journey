@@ -44,8 +44,3 @@ manager.addUser({
   email: "gabrielhas.tech@gmail.com",
   active: true,
 });
-
-// Todos:
-
-// E-mail validations ('@' and ".") [x]
-// Method to desative user []
