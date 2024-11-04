@@ -2,7 +2,7 @@
 
 ## Module 1: Fundamentals
 
-### Exercise 1: User Management System
+### User Management System
 
 This exercise focuses on implementing a basic user management system using TypeScript's fundamental concepts:
 
@@ -11,3 +11,11 @@ This exercise focuses on implementing a basic user management system using TypeS
 - Classes
 - Array manipulation
 - Type validation
+
+### Exercises:
+
+- [x] E-mail validations ('@' and ".")
+- [] Method to desative user
+- [] Method to update user
+- [] Method to list only active users
+- [] Adding creation date and last update the user
