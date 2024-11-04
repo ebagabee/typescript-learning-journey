@@ -5,6 +5,13 @@ interface User {
   active: boolean;
 }
 
+interface UpdateUser {
+  name?: string;
+  age?: number;
+  email?: string;
+  active?: boolean;
+}
+
 class UserManager {
   private users: User[] = [
     {
@@ -59,10 +66,38 @@ class UserManager {
     user.active = false;
     console.log("User desactived successfully");
   }
+
+  updateUser(email: string, userUpdated: UpdateUser): void {
+    const userFind = this.users.find((user) => user.email === email);
+
+    if (!userFind) {
+      console.log("User not founded");
+      return;
+    }
+
+    if (userUpdated.name) {
+      userFind.name = userUpdated.name;
+    }
+
+    if (userUpdated.age) {
+      userFind.age = userUpdated.age;
+    }
+
+    if (userUpdated.email) {
+      userFind.email = userUpdated.email;
+    }
+
+    if (userUpdated.active) {
+      userFind.active = userUpdated.active;
+    }
+
+    console.log("User updated successfully");
+  }
 }
 
 const manager = new UserManager();
 
+// Method to add user
 manager.addUser({
   name: "Gabriel",
   age: 23,
