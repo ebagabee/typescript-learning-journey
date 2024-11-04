@@ -20,3 +20,5 @@ enum StatusUser {
   Inative = "INACTIVE",
   Pending = "PENDING",
 }
+
+
